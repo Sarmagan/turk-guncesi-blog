@@ -1,76 +1,78 @@
-# Türk Güncesi — Astro sitesi
+# Türk Güncesi — Astro site
 
-[blog.turkguncesi.com](https://blog.turkguncesi.com) için Astro tabanlı, minimalist,
-**tamamen statik** bir yayın. Tüm içerik (yazılar, şiirler, yazar listesi
-ve görseller) depoya dahildir; derleme ya da çalışma zamanında hiçbir
-harici API'ye (WordPress dâhil) bağlanmaz.
+A minimal, **fully static** Astro-based publication for
+[blog.turkguncesi.com](https://blog.turkguncesi.com). All content (posts,
+poems, the author list and images) lives in this repository; the site never
+talks to an external API (including WordPress) at build time or at runtime.
 
 ---
 
-## İçindekiler
+## Table of contents
 
-1. [Kurulum](#kurulum)
-2. [Geliştirme](#geliştirme)
-3. [Derleme ve önizleme](#derleme-ve-önizleme)
-4. [Dağıtım](#dağıtım-netlify--vercel)
-5. [Proje yapısı](#proje-yapısı)
-6. [İçerik modeli](#içerik-modeli)
-7. [Yeni yazı / şiir / sayfa ekleme](#yeni-yazı--şiir--sayfa-ekleme)
-8. [WordPress'ten bir seferlik içerik taşıma](#wordpressten-bir-seferlik-içerik-taşıma)
+1. [Setup](#setup)
+2. [Development](#development)
+3. [Build and preview](#build-and-preview)
+4. [Deployment](#deployment-netlify--vercel)
+5. [Project structure](#project-structure)
+6. [Content model](#content-model)
+7. [Adding a new post / poem / page](#adding-a-new-post--poem--page)
+8. [One-time content migration from WordPress](#one-time-content-migration-from-wordpress)
 9. [SEO, robots.txt, sitemap](#seo-robotstxt-sitemap)
-10. [Güvenlik başlıkları](#güvenlik-başlıkları)
-11. [Görsel optimizasyonu](#görsel-optimizasyonu)
-12. [Katkı akışı](#katkı-akışı)
+10. [Security headers](#security-headers)
+11. [Image optimization](#image-optimization)
+12. [Contribution workflow](#contribution-workflow)
 
 ---
 
-## Kurulum
+## Setup
 
-Gereksinim: **Node.js 18.17+** (tercihen 20+).
+Requirement: **Node.js 18.17+** (20+ preferred).
 
 ```bash
-git clone https://github.com/<organizasyon>/turkguncesi.git
+git clone https://github.com/<org>/turkguncesi.git
 cd turkguncesi
 npm install
 ```
 
-## Geliştirme
+## Development
 
 ```bash
 npm run dev
 ```
 
-<http://localhost:4321> üzerinde açılır. Hot-reload aktiftir; içerik ya da
-bileşen değiştirdiğinizde sayfa anında güncellenir.
+Opens on <http://localhost:4321>. Hot reload is enabled, so the page updates
+instantly when you change content or components.
 
-## Derleme ve önizleme
+## Build and preview
 
 ```bash
-npm run build     # dist/ altına statik siteyi üretir
-npm run preview   # derlenen çıktıyı yerelde denemek için
+npm run build     # produces the static site under dist/
+npm run preview   # serves the built output locally to try it out
 ```
 
-Derleme tamamen yerel olduğundan internet bağlantısı gerektirmez ve tipik
-olarak **bir saniyenin altında** tamamlanır.
+The build is fully local — it does not require an internet connection and
+typically completes in **under a second**.
 
-## Dağıtım (Netlify / Vercel)
+## Deployment (Netlify / Vercel)
 
-Proje saf bir `dist/` klasörü üretir — sunucusuz runtime veya SSR gerekmez.
+The project produces a plain `dist/` folder — no serverless runtime or SSR
+is required.
 
 ### Netlify
 
-1. Netlify'da GitHub repo'sunu bağlayın.
-2. Build komutu: `npm run build`
+1. Connect the GitHub repo in Netlify.
+2. Build command: `npm run build`
 3. Publish directory: `dist`
-4. `public/_headers` otomatik okunur; güvenlik başlıkları uygulanır.
+4. `public/_headers` is picked up automatically; security headers are
+   applied.
 
 ### Vercel
 
-1. Repo'yu import edin; Astro otomatik algılanır.
-2. Build komutu `npm run build`, output `dist`.
-3. `vercel.json` güvenlik başlıklarını uygular.
+1. Import the repo; Astro is auto-detected.
+2. Build command `npm run build`, output `dist`.
+3. `vercel.json` applies the security headers.
 
-## Proje yapısı
+## Project structure
 
 ```
 .
@@ -79,23 +81,23 @@ Proje saf bir `dist/` klasörü üretir — sunucusuz runtime veya SSR gerekmez.
 ├── tsconfig.json
 ├── vercel.json
 ├── scripts/
-│   ├── migrate-from-wp.mjs        # tek seferlik WP → yerel migrasyon
-│   ├── normalize-content.mjs      # iç linkleri yerel URL'lere çevirir
-│   └── optimize-images.mjs        # AVIF + WebP türevleri üretir
+│   ├── migrate-from-wp.mjs        # one-off WP → local migration
+│   ├── normalize-content.mjs      # rewrites internal links to local URLs
+│   └── optimize-images.mjs        # produces AVIF + WebP variants
 ├── public/
 │   ├── robots.txt
 │   ├── _headers
 │   ├── favicon.svg
 │   ├── og-default.svg
-│   └── media/<slug>/...            # migrasyonda indirilen görseller
+│   └── media/<slug>/...            # images downloaded during migration
 └── src/
-    ├── content.config.ts           # content collection şemaları (posts, poems)
+    ├── content.config.ts           # content collection schemas (posts, poems)
     ├── data/
-    │   └── image-manifest.json     # optimize-images tarafından üretilir
+    │   └── image-manifest.json     # generated by optimize-images
     ├── content/
-    │   ├── authors.json            # yazar kayıtları
-    │   ├── posts/<slug>.json       # her yazı = bir JSON
-    │   └── poems/<slug>.md         # her şiir = bir markdown dosyası
+    │   ├── authors.json            # author records
+    │   ├── posts/<slug>.json       # each post = one JSON file
+    │   └── poems/<slug>.md         # each poem = one markdown file
     ├── styles/global.css
     ├── layouts/BaseLayout.astro
     ├── components/
@@ -104,18 +106,18 @@ Proje saf bir `dist/` klasörü üretir — sunucusuz runtime veya SSR gerekmez.
     │   ├── SocialIcons.astro
     │   ├── ThemeToggle.astro
     │   ├── PostCard.astro
-    │   ├── Picture.astro           # AVIF/WebP <picture> sarıcı
+    │   ├── Picture.astro           # AVIF/WebP <picture> wrapper
     │   └── SEO.astro
     ├── lib/
-    │   ├── config.ts               # site adı, nav, sosyal linkler
-    │   └── content.ts              # koleksiyonlardan okuyan yardımcılar
+    │   ├── config.ts               # site name, nav, social links
+    │   └── content.ts              # helpers that read from the collections
     └── pages/
         ├── index.astro                      # /
         ├── tum-yazilar/index.astro          # /tum-yazilar/
         ├── siirler/index.astro              # /siirler/
         ├── siirler/[slug].astro             # /siirler/<slug>
-        ├── tum-yazilar/index.astro          # /tum-yazilar/ (arşiv)
-        ├── tum-yazilar/[slug].astro         # /tum-yazilar/<slug> (yazı + dizi sayfası)
+        ├── tum-yazilar/index.astro          # /tum-yazilar/ (archive)
+        ├── tum-yazilar/[slug].astro         # /tum-yazilar/<slug> (post + series page)
         ├── hakkimizda/index.astro
         ├── yazarlar/index.astro
         ├── gizlilik-politikasi/index.astro
@@ -124,27 +126,29 @@ Proje saf bir `dist/` klasörü üretir — sunucusuz runtime veya SSR gerekmez.
         └── rss.xml.ts                       # /rss.xml feed
 ```
 
-## İçerik modeli
+## Content model
 
-Astro **Content Collections** kullanıyoruz. Şemalar `src/content.config.ts`
-içinde Zod ile tanımlanmıştır.
+We use Astro **Content Collections**. The schemas are defined with Zod in
+`src/content.config.ts`.
 
-- **posts** — WordPress'ten getirilen HTML yazılar. Her yazı
-  `src/content/posts/<slug>.json` dosyasıdır; alanlar: `title`, `date`,
+- **posts** — HTML posts imported from WordPress. Each post is a
+  `src/content/posts/<slug>.json` file with fields: `title`, `date`,
   `author`, `categories`, `excerpt`, `featuredImage`, `content` (HTML).
-- **poems** — markdown olarak yazılan şiirler
-  (`src/content/poems/<slug>.md`). Satır sonları korunur (CSS tarafında
-  `white-space: pre-line`), böylece dize yapısı bozulmaz.
-- **authors** — `src/content/authors.json`. `/yazarlar/` burada listelenir.
+- **poems** — poems written as markdown
+  (`src/content/poems/<slug>.md`). Line breaks are preserved (via
+  `white-space: pre-line` in the CSS), so the verse layout stays intact.
+- **authors** — `src/content/authors.json`. The `/yazarlar/` page is
+  rendered from this file.
 
-Pages bu koleksiyonlara yalnızca `src/lib/content.ts` üzerinden erişir; yeni
-bir veri kaynağına geçmek isterseniz değişiklik yalnızca bu dosyada gerekir.
+Pages access these collections only through `src/lib/content.ts`; if you
+ever switch to a different data source, the change is needed in that one
+file only.
 
-## Yeni yazı / şiir / sayfa ekleme
+## Adding a new post / poem / page
 
-### Yeni yazı
+### New post
 
-1. `src/content/posts/<slug>.json` oluşturun. Minimal örnek:
+1. Create `src/content/posts/<slug>.json`. Minimal example:
 
    ```json
    {
@@ -156,112 +160,115 @@ bir veri kaynağına geçmek isterseniz değişiklik yalnızca bu dosyada gereki
      "excerpt": "Kısa giriş…",
      "featuredImage": null,
      "featuredImageAlt": "",
-     "content": "<p>Yazı gövdesi HTML olarak buraya…</p>"
+     "content": "<p>Post body as HTML goes here…</p>"
    }
    ```
 
-2. Görsel kullanacaksanız `public/media/<slug>/kapak.jpg` gibi bir yola
-   ekleyip `featuredImage` değerini `"/media/<slug>/kapak.jpg"` yapın.
-3. `npm run dev` ile sayfayı `/tum-yazilar/<slug>` yolunda görebilirsiniz.
+2. If you use an image, drop it at e.g. `public/media/<slug>/kapak.jpg`
+   and set `featuredImage` to `"/media/<slug>/kapak.jpg"`.
+3. Run `npm run dev` — the page will be available at `/tum-yazilar/<slug>`.
 
-### Yeni şiir
+### New poem
 
-1. `src/content/poems/<slug>.md` oluşturun:
+1. Create `src/content/poems/<slug>.md`:
 
    ```md
    ---
-   title: "Şiir Adı"
-   author: "Yazarı"
+   title: "Poem title"
+   author: "Poem author"
    order: 6
-   excerpt: "İlk birkaç dize…"
+   excerpt: "The first few lines…"
    ---
 
-   Birinci dize
-   İkinci dize
-   Üçüncü dize
+   First line
+   Second line
+   Third line
 
-   Yeni kıta başlar…
+   A new stanza begins…
    ```
 
-2. `order` değeri küçük olan şiirler `/siirler/` listesinde üstte görünür.
-3. Sayfa otomatik olarak `/siirler/<slug>` yolunda yayımlanır.
+2. Poems with a smaller `order` value appear higher in the `/siirler/`
+   list.
+3. The page is published automatically at `/siirler/<slug>`.
 
-### Yeni statik sayfa
+### New static page
 
-`src/pages/<yeni-yol>/index.astro` oluşturun:
+Create `src/pages/<new-path>/index.astro`:
 
 ```astro
 ---
 import BaseLayout from '@layouts/BaseLayout.astro';
 ---
-<BaseLayout title="Sayfa Başlığı" description="Kısa açıklama">
+<BaseLayout title="Page title" description="Short description">
   <header class="page-header">
-    <span class="page-header__kicker">Bölüm</span>
-    <h1>Sayfa Başlığı</h1>
+    <span class="page-header__kicker">Section</span>
+    <h1>Page title</h1>
   </header>
   <article class="post-body">
-    <p>İçerik…</p>
+    <p>Content…</p>
   </article>
 </BaseLayout>
 ```
 
-Navigasyonda görünmesini istiyorsanız `src/lib/config.ts` içindeki
-`NAV_LINKS` dizisine ekleyin.
+If you want the page to appear in the navigation, add it to the
+`NAV_LINKS` array in `src/lib/config.ts`.
 
-## WordPress'ten bir seferlik içerik taşıma
+## One-time content migration from WordPress
 
-Depoda hâlihazırda 29 taşınmış yazı ve 145 görsel bulunuyor. İçerikler,
-daha önce `blog.turkguncesi.com` üzerinde yayımlanan WordPress kurulumundan
-tek seferde alınmıştır; yeni Astro sitesi aynı alan adında bu eski WordPress
-kurulumunun yerini alacaktır.
+The repository already contains 29 imported posts and 145 images. The
+content was imported in a single pass from the WordPress install that
+previously ran on `blog.turkguncesi.com`; the new Astro site will replace
+that WordPress install on the same domain.
 
-Cutover öncesinde taze bir WordPress dışa aktarımı yapmak isterseniz
-(WordPress henüz aynı alan adında çalışırken) aşağıdaki komut kullanılır:
+If you want to take a fresh WordPress export before the cutover (i.e.
+while WordPress is still serving the same domain), run:
 
 ```bash
 npm run migrate
 ```
 
-Bu komut:
+This command:
 
-1. `https://blog.turkguncesi.com/wp-json/wp/v2/posts` üzerinden tüm yazıları
-   çeker (tekrar denemeler + exponential backoff ile).
-2. Öne çıkan ve gövde içi görselleri `public/media/<slug>/` altına indirir.
-3. Gövde içindeki WordPress URL'lerini yerel yollarla değiştirir.
-4. Sonuçları `src/content/posts/<slug>.json` olarak yazar.
-5. Yazar listesini `src/content/authors.json`'a günceller.
+1. Fetches every post via
+   `https://blog.turkguncesi.com/wp-json/wp/v2/posts` (with retries +
+   exponential backoff).
+2. Downloads featured and in-body images into `public/media/<slug>/`.
+3. Rewrites in-body WordPress URLs to local paths.
+4. Writes the result as `src/content/posts/<slug>.json`.
+5. Updates the author list at `src/content/authors.json`.
 
-> **Not:** Yeni Astro sitesi devreye alındığında (DNS `blog.turkguncesi.com`
-> artık Vercel/Netlify'a yönlenince) bu alan adı REST API üretmeyeceği için
-> `npm run migrate` artık çalışmaz. Tazeleme gerekiyorsa DNS değişiminden
-> önce yapılmalıdır.
+> **Note:** Once the new Astro site goes live (when DNS for
+> `blog.turkguncesi.com` is pointed at Vercel/Netlify), this domain will
+> no longer serve a REST API, so `npm run migrate` will stop working.
+> Any refresh must happen before the DNS cutover.
 
-İkinci bir komut:
+A second command:
 
 ```bash
 npm run normalize
 ```
 
-var olan JSON dosyalarındaki iç linkleri yeniden yerel hale getirir (WP
-dışarı aktarmadan içerik elle yapıştırdığınızda faydalı).
+rewrites internal links in the existing JSON files back to local paths
+(useful if you paste content in by hand rather than using a WordPress
+export).
 
-> **Not:** Yeni site yazı permalink yapısını eski WordPress düzeniyle
-> aynı tutar (`/tum-yazilar/<slug>/`); yeni site aynı alan adında
-> (`blog.turkguncesi.com`) yayımlanacağı için indekslenmiş mevcut bağlantılar
-> ek bir yönlendirmeye gerek kalmadan doğrudan çalışmaya devam eder.
+> **Note:** The new site keeps the same permalink structure as the old
+> WordPress setup (`/tum-yazilar/<slug>/`); because the new site is
+> published on the same domain (`blog.turkguncesi.com`), already-indexed
+> links keep working without any extra redirect.
 
 ## SEO, robots.txt, sitemap
 
-- `public/robots.txt` — tüm botlara açık + sitemap referansı.
-- `sitemap-index.xml` — `@astrojs/sitemap` tarafından tüm yayımlanan
-  sayfaları (yazı, şiir, sabit sayfa) içerecek şekilde otomatik üretilir.
-- Her sayfa `title`, `description`, `og:*`, `twitter:*`, `canonical`
-  bilgilerini `src/components/SEO.astro` üzerinden alır. Post sayfalarında
-  `og:type=article` + `article:published_time` ayarlanır.
+- `public/robots.txt` — open to all bots + sitemap reference.
+- `sitemap-index.xml` — generated automatically by `@astrojs/sitemap` so
+  that it includes every published page (posts, poems, static pages).
+- Every page gets its `title`, `description`, `og:*`, `twitter:*` and
+  `canonical` tags via `src/components/SEO.astro`. On post pages
+  `og:type=article` and `article:published_time` are set.
 
-## Güvenlik başlıkları
+## Security headers
 
-Netlify ve Vercel için eşdeğer yapılandırmalar:
+Equivalent configurations for Netlify and Vercel:
 
 - `X-Frame-Options: DENY`
 - `X-Content-Type-Options: nosniff`
@@ -271,45 +278,45 @@ Netlify ve Vercel için eşdeğer yapılandırmalar:
 
 Netlify: `public/_headers` · Vercel: `vercel.json`.
 
-## Görsel optimizasyonu
+## Image optimization
 
-Her derleme, `public/` altındaki raster görsellerin (`.jpg`, `.jpeg`,
-`.png`, `.webp`) yanına otomatik olarak AVIF ve WebP sürümleri üretir
-ve `src/data/image-manifest.json` dosyasına boyut + yol bilgisi yazar.
-Tipik olarak orijinal JPG/PNG bayt ağırlığı **%75–%80** azalır
-(örn. 53 MiB kaynak → 10 MiB AVIF).
+Every build automatically generates AVIF and WebP versions of every
+raster image (`.jpg`, `.jpeg`, `.png`, `.webp`) under `public/`, next to
+the original, and records the dimensions + paths in
+`src/data/image-manifest.json`. Original JPG/PNG byte weight typically
+drops by **75–80%** (e.g. 53 MiB source → 10 MiB AVIF).
 
-Akış:
+Pipeline:
 
-1. `scripts/optimize-images.mjs` (sharp tabanlı) tüm kaynakları gezer ve
-   her biri için `foo.jpg.avif` + `foo.jpg.webp` türevlerini oluşturur
-   (maksimum 1920 piksel uzun kenar, büyütmez). İnkremental çalışır;
-   ikinci koşu yalnızca yeni/değişmiş dosyaları işler.
-2. `npm run build` ve `npm run dev` otomatik olarak `prebuild` /
-   `predev` olarak bu scripti çağırır.
-3. `.astro` sayfalarındaki görseller için `src/components/Picture.astro`
-   bileşeni kullanılır; bu bileşen manifestoyu okuyarak `<picture>`
-   içine AVIF + WebP `<source>` etiketleri yerleştirir, orijinali
-   fallback olarak bırakır. `width`/`height` manifestodan otomatik
-   yüklenir — CLS=0.
-4. WordPress'ten taşınmış yazılarda `<img>` olarak gömülü görseller
-   `enhancePostHtml` yardımcısı tarafından aynı `<picture>` yapısına
-   sarılır; ayrıca `loading="lazy"` + `decoding="async"` eklenir.
+1. `scripts/optimize-images.mjs` (sharp-based) walks every source file
+   and produces `foo.jpg.avif` + `foo.jpg.webp` variants for each
+   (max 1920 px on the long edge, never upscaling). It's incremental —
+   a second run only processes new or changed files.
+2. `npm run build` and `npm run dev` invoke this script automatically
+   as `prebuild` / `predev`.
+3. For images used in `.astro` pages, use the
+   `src/components/Picture.astro` component; it reads the manifest and
+   produces a `<picture>` element with AVIF + WebP `<source>` tags and
+   the original as a fallback. `width`/`height` are loaded from the
+   manifest automatically — CLS=0.
+4. In posts migrated from WordPress, `<img>` tags embedded in the body
+   are wrapped into the same `<picture>` structure by the
+   `enhancePostHtml` helper; `loading="lazy"` and `decoding="async"`
+   are also added.
 
-Türev dosyalar `.gitignore` ile takip dışı bırakılır — deploy eden
-sunucu (Vercel/Netlify) her derlemede yeniden üretir. Manuel çalıştırma
-için:
+The derived files are git-ignored — the deploying host (Vercel/Netlify)
+regenerates them on every build. To run it manually:
 
 ```bash
 npm run optimize-images
 ```
 
-## Katkı akışı
+## Contribution workflow
 
-- Değişiklikler feature branch üzerinde PR ile yapılır.
-- `main`'e merge sonrası Netlify/Vercel otomatik dağıtır.
-- Metin düzeltmeleri için bile PR tercih edilir; böylece iki eş yazar
-  gözden geçirme imkânı bulur.
+- Changes are made on a feature branch via PR.
+- After merging to `main`, Netlify/Vercel deploy automatically.
+- Even text fixes go through a PR, so both co-authors get a chance to
+  review.
 
 ---
 
