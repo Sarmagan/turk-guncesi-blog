@@ -10,6 +10,10 @@ interface Props {
   modifiedTime?: string;
   author?: string;
   noindex?: boolean;
+  /** Ordered trail from the site root to the current page. When
+   *  provided, a BreadcrumbList JSON-LD block is emitted so Google
+   *  can render the page in breadcrumb rich results. */
+  breadcrumbs?: Array<{ name: string; url: string }>;
 }
 
 const {
@@ -21,6 +25,7 @@ const {
   modifiedTime,
   author,
   noindex = false,
+  breadcrumbs,
 } = Astro.props;
 
 const canonical = new URL(Astro.url.pathname, SITE.url).toString();
@@ -52,6 +57,20 @@ const websiteLd = {
   url: SITE.url,
   inLanguage: 'tr-TR',
 };
+
+const breadcrumbLd =
+  breadcrumbs && breadcrumbs.length > 0
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: breadcrumbs.map((crumb, i) => ({
+          '@type': 'ListItem',
+          position: i + 1,
+          name: crumb.name,
+          item: crumb.url,
+        })),
+      }
+    : null;
 
 const articleLd =
   type === 'article'
@@ -126,6 +145,13 @@ const articleLd =
   is:inline
   set:html={JSON.stringify(websiteLd)}
 />
+{breadcrumbLd && (
+  <script
+    type="application/ld+json"
+    is:inline
+    set:html={JSON.stringify(breadcrumbLd)}
+  />
+)}
 {articleLd && (
   <script
     type="application/ld+json"

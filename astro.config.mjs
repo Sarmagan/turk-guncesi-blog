@@ -24,4 +24,14 @@ export default defineConfig({
   devToolbar: {
     enabled: false,
   },
+  // Pagefind generates /pagefind/pagefind.js during `postbuild`, after
+  // Astro has already bundled the site. Mark it as external so rollup
+  // does not try to resolve it at build time.
+  vite: {
+    build: {
+      rollupOptions: {
+        external: [/^\/pagefind\//],
+      },
+    },
+  },
 });

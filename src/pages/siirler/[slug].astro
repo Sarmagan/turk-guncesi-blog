@@ -30,7 +30,7 @@ const description =
   author={poem.data.author}
   publishedTime={poem.data.date ? poem.data.date.toISOString() : undefined}
 >
-  <article class="poem-page">
+  <article class="poem-page" data-pagefind-body data-pagefind-filter="kind:Şiir">
     <header class="poem-page__header">
       <p class="poem-page__kicker">Şiir</p>
       <h1>{poem.data.title}</h1>

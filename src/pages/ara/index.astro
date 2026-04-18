@@ -1,0 +1,296 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import { SITE } from '@lib/config';
+
+const title = 'Ara';
+const description = `${SITE.name} arşivinde makalelerde ve şiirlerde arama yap.`;
+---
+
+<BaseLayout title={title} description={description}>
+  <section class="search-page">
+    <header class="search-page__header">
+      <h1>Ara</h1>
+      <p class="search-page__lede">
+        Yazı ve şiir arşivinde arama yapın. Arama tamamen cihazınızda çalışır;
+        yazdığınız hiçbir şey sunucuya gönderilmez.
+      </p>
+    </header>
+
+    <form class="search-form" role="search" aria-label="Site araması">
+      <label class="search-form__label" for="search-input">Aranacak metin</label>
+      <input
+        id="search-input"
+        class="search-form__input"
+        type="search"
+        autocomplete="off"
+        autocapitalize="none"
+        spellcheck="false"
+        placeholder="örn. Orhun, Dede Korkut, Nazım…"
+        aria-describedby="search-status"
+      />
+    </form>
+
+    <p class="search-status" id="search-status" role="status" aria-live="polite"></p>
+
+    <ol class="search-results" id="search-results" aria-label="Arama sonuçları"></ol>
+
+    <noscript>
+      <div class="search-noscript">
+        <p>
+          Arama, tarayıcıda JavaScript çalıştırılmasını gerektirir. Lütfen JavaScript'i
+          etkinleştirin veya <a href="/tum-yazilar/">tüm yazıları</a> listeden inceleyin.
+        </p>
+      </div>
+    </noscript>
+  </section>
+
+  <script>
+    // Pagefind emits its bundle to /pagefind/ during `pagefind --site dist`.
+    // We import it dynamically so Astro's build never tries to resolve it.
+    type PagefindResult = {
+      id: string;
+      data: () => Promise<{
+        url: string;
+        excerpt: string;
+        meta: { title?: string };
+        filters?: Record<string, string[]>;
+      }>;
+    };
+    type PagefindSearch = {
+      search: (query: string) => Promise<{ results: PagefindResult[] }>;
+    };
+
+    const input = document.getElementById('search-input') as HTMLInputElement | null;
+    const list = document.getElementById('search-results') as HTMLOListElement | null;
+    const status = document.getElementById('search-status') as HTMLParagraphElement | null;
+    const form = input?.closest('form');
+    if (form) {
+      form.addEventListener('submit', (e) => e.preventDefault());
+    }
+
+    let pagefind: PagefindSearch | null = null;
+    let pagefindPromise: Promise<PagefindSearch | null> | null = null;
+
+    async function loadPagefind(): Promise<PagefindSearch | null> {
+      if (pagefind) return pagefind;
+      if (!pagefindPromise) {
+        pagefindPromise = (async () => {
+          try {
+            const mod = (await import(
+              /* @vite-ignore */ '/pagefind/pagefind.js'
+            )) as PagefindSearch;
+            await (mod as unknown as { init?: () => Promise<void> }).init?.();
+            pagefind = mod;
+            return mod;
+          } catch {
+            return null;
+          }
+        })();
+      }
+      return pagefindPromise;
+    }
+
+    function escapeHtml(value: string): string {
+      return value
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    async function runSearch(query: string) {
+      if (!list || !status) return;
+      if (!query.trim()) {
+        list.innerHTML = '';
+        status.textContent = '';
+        return;
+      }
+      status.textContent = 'Aranıyor…';
+      const lib = await loadPagefind();
+      if (!lib) {
+        status.textContent =
+          'Arama dizini henüz hazır değil. Lütfen siteyi yeniden yükleyin.';
+        return;
+      }
+      const search = await lib.search(query);
+      if (!search.results.length) {
+        list.innerHTML = '';
+        status.textContent = `"${query}" için sonuç bulunamadı.`;
+        return;
+      }
+      status.textContent = `${search.results.length} sonuç`;
+      const shown = search.results.slice(0, 20);
+      const data = await Promise.all(shown.map((r) => r.data()));
+      list.innerHTML = data
+        .map((d) => {
+          const title = d.meta?.title || d.url;
+          const kind = d.filters?.kind?.[0] ?? '';
+          const kindBadge = kind
+            ? `<span class="search-result__kind">${escapeHtml(kind)}</span>`
+            : '';
+          return `
+            <li class="search-result">
+              <a class="search-result__link" href="${escapeHtml(d.url)}">
+                ${kindBadge}
+                <h2 class="search-result__title">${escapeHtml(title)}</h2>
+                <p class="search-result__excerpt">${d.excerpt}</p>
+              </a>
+            </li>
+          `;
+        })
+        .join('');
+    }
+
+    let debounce: number | undefined;
+    input?.addEventListener('input', () => {
+      const value = input.value;
+      window.clearTimeout(debounce);
+      debounce = window.setTimeout(() => runSearch(value), 160);
+    });
+
+    // Allow deep-linking to a search via ?q=foo
+    const initial = new URLSearchParams(window.location.search).get('q');
+    if (initial && input) {
+      input.value = initial;
+      runSearch(initial);
+    }
+    input?.focus();
+  </script>
+</BaseLayout>
+
+<style>
+  .search-page {
+    max-width: 44rem;
+    margin: 0 auto;
+    padding: 2rem 1.25rem 3rem;
+  }
+
+  .search-page__header {
+    margin-bottom: 1.5rem;
+  }
+
+  .search-page__header h1 {
+    margin: 0 0 0.5rem;
+  }
+
+  .search-page__lede {
+    margin: 0;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  .search-form {
+    margin-top: 1rem;
+  }
+
+  .search-form__label {
+    display: block;
+    font-family: var(--font-sans);
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 0.4rem;
+  }
+
+  .search-form__input {
+    display: block;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border);
+    background: var(--bg-elevated);
+    color: var(--text);
+    border-radius: var(--radius);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    transition: border-color 160ms ease, box-shadow 160ms ease;
+  }
+
+  .search-form__input:focus {
+    border-color: var(--accent);
+    outline: none;
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent) 25%, transparent);
+  }
+
+  .search-status {
+    margin: 1.25rem 0 0.5rem;
+    font-family: var(--font-sans);
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    min-height: 1.25rem;
+  }
+
+  .search-results {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .search-result {
+    display: block;
+  }
+
+  .search-result__link {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding: 1rem 1.1rem;
+    border: 1px solid var(--border);
+    background: var(--bg-elevated);
+    border-radius: var(--radius);
+    color: var(--text);
+    transition:
+      border-color 160ms ease,
+      transform 160ms ease,
+      box-shadow 160ms ease;
+  }
+
+  .search-result__link:hover,
+  .search-result__link:focus-visible {
+    text-decoration: none;
+    border-color: var(--accent);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-card);
+  }
+
+  .search-result__kind {
+    font-family: var(--font-sans);
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .search-result__title {
+    margin: 0;
+    font-size: 1.15rem;
+    line-height: 1.3;
+    color: var(--text);
+  }
+
+  .search-result__excerpt {
+    margin: 0;
+    color: var(--text-muted);
+    line-height: 1.55;
+    font-size: 0.95rem;
+  }
+
+  .search-result__excerpt :global(mark) {
+    background: color-mix(in oklab, var(--accent) 30%, transparent);
+    color: inherit;
+    padding: 0 0.15em;
+    border-radius: 3px;
+  }
+
+  .search-noscript {
+    margin-top: 1.5rem;
+    padding: 1rem 1.25rem;
+    border: 1px dashed var(--border);
+    border-radius: var(--radius);
+    color: var(--text-muted);
+  }
+</style>

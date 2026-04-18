@@ -7,7 +7,10 @@ import {
   stripHtml,
   formatDateTR,
   enhancePostHtml,
+  readingTimeMinutes,
+  getAdjacentPosts,
 } from '@lib/content';
+import { SITE } from '@lib/config';
 import type { Series } from '@lib/series';
 import { getAllSeries, getSeriesBySlug } from '@lib/series';
 
@@ -73,6 +76,32 @@ const heroImage =
   props.kind === 'post' && postData?.featuredImage
     ? { url: postData.featuredImage, alt: postData.featuredImageAlt || '' }
     : null;
+
+const allPostsForAdjacency =
+  props.kind === 'post' ? await getAllPosts() : [];
+const { previous: previousPost, next: nextPost } =
+  props.kind === 'post'
+    ? getAdjacentPosts(allPostsForAdjacency, postData!.slug)
+    : { previous: null, next: null };
+
+const readingMinutes =
+  props.kind === 'post' ? readingTimeMinutes(postData!.content) : 0;
+
+const postUrl =
+  props.kind === 'post'
+    ? new URL(`/tum-yazilar/${postData!.slug}/`, SITE.url).toString()
+    : '';
+const shareTitleRaw = props.kind === 'post' ? stripHtml(postData!.title, 160) : '';
+const shareTitle = encodeURIComponent(shareTitleRaw);
+const shareUrlEnc = encodeURIComponent(postUrl);
+const breadcrumbs =
+  props.kind === 'post'
+    ? [
+        { name: 'Ana sayfa', url: new URL('/', SITE.url).toString() },
+        { name: 'Tüm Yazılar', url: new URL('/tum-yazilar/', SITE.url).toString() },
+        { name: shareTitleRaw, url: postUrl },
+      ]
+    : [];
 ---
 
 {
@@ -206,8 +235,17 @@ const heroImage =
       publishedTime={postData!.date}
       modifiedTime={postData!.modified || postData!.date}
       author={postData!.author.name}
+      breadcrumbs={breadcrumbs}
     >
-      <article class="post">
+      <div class="reading-progress" aria-hidden="true">
+        <div class="reading-progress__bar" id="reading-progress-bar"></div>
+      </div>
+
+      <article
+        class="post"
+        data-pagefind-body
+        data-pagefind-filter="kind:Yazı"
+      >
         <header class="post__header">
           {postData!.categories.length > 0 && (
             <p class="post__kicker">
@@ -226,6 +264,8 @@ const heroImage =
             <time datetime={postData!.date}>
               {formatDateTR(postData!.date)}
             </time>
+            <span aria-hidden="true">·</span>
+            <span class="post__reading-time">{readingMinutes} dk okuma</span>
           </p>
         </header>
 
@@ -236,6 +276,7 @@ const heroImage =
               alt={heroImage.alt}
               loading="eager"
               decoding="async"
+              fetchpriority="high"
             />
             {heroImage.alt && <figcaption>{heroImage.alt}</figcaption>}
           </figure>
@@ -243,12 +284,178 @@ const heroImage =
 
         <div class="post-body post__body" set:html={enhancePostHtml(postData!.content)} />
 
-        <footer class="post__footer">
+        <section class="post-share" aria-label="Bu yazıyı paylaş" data-pagefind-ignore>
+          <h2 class="post-share__title">Paylaş</h2>
+          <ul class="post-share__list">
+            <li>
+              <a
+                class="post-share__btn"
+                href={`https://x.com/intent/tweet?url=${shareUrlEnc}&text=${shareTitle}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="X'te paylaş"
+              >
+                X
+              </a>
+            </li>
+            <li>
+              <a
+                class="post-share__btn"
+                href={`https://bsky.app/intent/compose?text=${shareTitle}%20${shareUrlEnc}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Bluesky'da paylaş"
+              >
+                Bluesky
+              </a>
+            </li>
+            <li>
+              <a
+                class="post-share__btn"
+                href={`https://api.whatsapp.com/send?text=${shareTitle}%20${shareUrlEnc}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="WhatsApp'ta paylaş"
+              >
+                WhatsApp
+              </a>
+            </li>
+            <li>
+              <a
+                class="post-share__btn"
+                href={`mailto:?subject=${shareTitle}&body=${shareUrlEnc}`}
+                aria-label="E-posta ile paylaş"
+              >
+                E-posta
+              </a>
+            </li>
+            <li>
+              <button
+                type="button"
+                class="post-share__btn post-share__copy"
+                data-copy-url={postUrl}
+                aria-label="Bağlantıyı kopyala"
+              >
+                <span class="post-share__copy-label">Bağlantıyı kopyala</span>
+                <span class="post-share__copy-feedback" aria-hidden="true">Kopyalandı</span>
+              </button>
+            </li>
+          </ul>
+        </section>
+
+        {(previousPost || nextPost) && (
+          <nav class="post-nav" aria-label="Yazı gezintisi" data-pagefind-ignore>
+            {previousPost ? (
+              <a class="post-nav__link post-nav__link--prev" href={`/tum-yazilar/${previousPost.data.slug}/`}>
+                <span class="post-nav__direction">← Önceki yazı</span>
+                <span class="post-nav__title" set:html={previousPost.data.title} />
+              </a>
+            ) : (
+              <span />
+            )}
+            {nextPost ? (
+              <a class="post-nav__link post-nav__link--next" href={`/tum-yazilar/${nextPost.data.slug}/`}>
+                <span class="post-nav__direction">Sonraki yazı →</span>
+                <span class="post-nav__title" set:html={nextPost.data.title} />
+              </a>
+            ) : (
+              <span />
+            )}
+          </nav>
+        )}
+
+        <footer class="post__footer" data-pagefind-ignore>
           <a class="post__back" href="/tum-yazilar/">
             ← Tüm yazılara dön
           </a>
         </footer>
       </article>
+
+      <button
+        type="button"
+        class="back-to-top"
+        id="back-to-top"
+        aria-label="Sayfanın başına dön"
+        hidden
+      >
+        ↑
+      </button>
+
+      <script is:inline>
+        (() => {
+          const bar = document.getElementById('reading-progress-bar');
+          const btn = document.getElementById('back-to-top');
+          const article = document.querySelector('.post');
+          if (!bar || !article) return;
+
+          const prefersReduced =
+            window.matchMedia &&
+            window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+          let ticking = false;
+          const update = () => {
+            ticking = false;
+            const rect = article.getBoundingClientRect();
+            const total = rect.height - window.innerHeight;
+            const scrolled = Math.min(
+              Math.max(-rect.top, 0),
+              Math.max(total, 1),
+            );
+            const pct = total > 0 ? (scrolled / total) * 100 : 0;
+            bar.style.width = pct + '%';
+            if (btn) {
+              if (window.scrollY > 600) {
+                btn.hidden = false;
+              } else {
+                btn.hidden = true;
+              }
+            }
+          };
+
+          const onScroll = () => {
+            if (ticking) return;
+            ticking = true;
+            window.requestAnimationFrame(update);
+          };
+
+          window.addEventListener('scroll', onScroll, { passive: true });
+          window.addEventListener('resize', onScroll);
+          update();
+
+          if (btn) {
+            btn.addEventListener('click', () => {
+              window.scrollTo({
+                top: 0,
+                behavior: prefersReduced ? 'auto' : 'smooth',
+              });
+            });
+          }
+
+          const copyBtn = document.querySelector('.post-share__copy');
+          if (copyBtn) {
+            copyBtn.addEventListener('click', async () => {
+              const url = copyBtn.getAttribute('data-copy-url') || window.location.href;
+              try {
+                await navigator.clipboard.writeText(url);
+              } catch {
+                const ta = document.createElement('textarea');
+                ta.value = url;
+                ta.setAttribute('readonly', '');
+                ta.style.position = 'absolute';
+                ta.style.left = '-9999px';
+                document.body.appendChild(ta);
+                ta.select();
+                try { document.execCommand('copy'); } catch {}
+                document.body.removeChild(ta);
+              }
+              copyBtn.classList.add('post-share__copy--done');
+              setTimeout(() => {
+                copyBtn.classList.remove('post-share__copy--done');
+              }, 1800);
+            });
+          }
+        })();
+      </script>
     </BaseLayout>
   )
 }
@@ -305,6 +512,198 @@ const heroImage =
     border-top: 1px solid var(--border);
     font-family: var(--font-sans);
     font-size: 0.95rem;
+  }
+
+  .post__reading-time {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Reading progress bar pinned below the sticky header */
+  .reading-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    z-index: 30;
+    background: transparent;
+    pointer-events: none;
+  }
+
+  .reading-progress__bar {
+    height: 100%;
+    width: 0%;
+    background: var(--accent);
+    transition: width 80ms linear;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reading-progress__bar {
+      transition: none;
+    }
+  }
+
+  /* Share + copy-link row */
+  .post-share {
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .post-share__title {
+    margin: 0 0 0.75rem;
+    font-family: var(--font-sans);
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+
+  .post-share__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .post-share__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 0.85rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg-elevated);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: 0.88rem;
+    cursor: pointer;
+    transition:
+      border-color 120ms ease,
+      color 120ms ease,
+      background 120ms ease;
+  }
+
+  .post-share__btn:hover,
+  .post-share__btn:focus-visible {
+    border-color: var(--accent);
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .post-share__copy {
+    position: relative;
+  }
+
+  .post-share__copy-feedback {
+    position: absolute;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-elevated);
+    color: var(--accent);
+    border-radius: var(--radius);
+  }
+
+  .post-share__copy--done .post-share__copy-feedback {
+    display: flex;
+  }
+
+  /* Previous / next navigation */
+  .post-nav {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 2.5rem;
+  }
+
+  .post-nav__link {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding: 1rem 1.1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg-elevated);
+    color: var(--text);
+    transition:
+      border-color 160ms ease,
+      box-shadow 160ms ease,
+      transform 160ms ease;
+  }
+
+  .post-nav__link:hover,
+  .post-nav__link:focus-visible {
+    text-decoration: none;
+    border-color: var(--accent);
+    box-shadow: var(--shadow-card);
+    transform: translateY(-1px);
+  }
+
+  .post-nav__link--next {
+    text-align: right;
+  }
+
+  .post-nav__direction {
+    font-family: var(--font-sans);
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .post-nav__title {
+    font-family: var(--font-serif);
+    font-size: 1.02rem;
+    line-height: 1.35;
+    color: var(--text);
+  }
+
+  @media (max-width: 600px) {
+    .post-nav {
+      grid-template-columns: 1fr;
+    }
+    .post-nav__link--next {
+      text-align: left;
+    }
+  }
+
+  /* Floating back-to-top button */
+  .back-to-top {
+    position: fixed;
+    right: 1rem;
+    bottom: 1rem;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 999px;
+    background: var(--accent);
+    color: #fff;
+    border: 0;
+    font-size: 1.2rem;
+    line-height: 1;
+    cursor: pointer;
+    box-shadow: var(--shadow-card-strong);
+    z-index: 25;
+    transition: transform 160ms ease, opacity 160ms ease;
+  }
+
+  .back-to-top:hover,
+  .back-to-top:focus-visible {
+    transform: translateY(-2px);
+  }
+
+  .back-to-top[hidden] {
+    display: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .back-to-top {
+      transition: none;
+    }
   }
 
   /* =================================================================

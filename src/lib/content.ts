@@ -166,6 +166,41 @@ export function enhancePostHtml(html: string): string {
   });
 }
 
+/**
+ * Estimate reading time in whole minutes for a chunk of HTML. Uses a
+ * Turkish-leaning 200 wpm baseline which matches common research for
+ * general prose in Turkish and English. Minimum of 1 minute so we never
+ * show "0 dk" on very short posts.
+ */
+export function readingTimeMinutes(html: string, wpm = 200): number {
+  const text = html
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&#?[a-z0-9]+;/gi, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (!text) return 1;
+  const words = text.split(' ').filter(Boolean).length;
+  return Math.max(1, Math.round(words / wpm));
+}
+
+/**
+ * Given the full chronological list and a slug, return the post that
+ * was published just before and just after it. Lists are sorted
+ * newest-first, so "previous" here means an older post (later in the
+ * array) and "next" means a newer one (earlier in the array).
+ */
+export function getAdjacentPosts(
+  all: PostEntry[],
+  slug: string,
+): { previous: PostEntry | null; next: PostEntry | null } {
+  const index = all.findIndex((p) => p.data.slug === slug);
+  if (index === -1) return { previous: null, next: null };
+  return {
+    previous: all[index + 1] ?? null,
+    next: all[index - 1] ?? null,
+  };
+}
+
 export function formatDateTR(iso: string | Date): string {
   try {
     const d = iso instanceof Date ? iso : new Date(iso);

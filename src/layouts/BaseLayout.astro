@@ -13,6 +13,7 @@ interface Props {
   modifiedTime?: string;
   author?: string;
   noindex?: boolean;
+  breadcrumbs?: Array<{ name: string; url: string }>;
   /** If true, removes the default .container wrapper around <slot/> so the page can manage its own layout. */
   fullBleed?: boolean;
 }
@@ -26,6 +27,7 @@ const {
   modifiedTime,
   author,
   noindex,
+  breadcrumbs,
   fullBleed = false,
 } = Astro.props;
 ---
@@ -65,6 +67,7 @@ const {
       modifiedTime={modifiedTime}
       author={author}
       noindex={noindex}
+      breadcrumbs={breadcrumbs}
     />
     <slot name="head" />
   </head>

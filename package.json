@@ -14,7 +14,8 @@
     "migrate": "node scripts/migrate-from-wp.mjs",
     "normalize": "node scripts/normalize-content.mjs",
     "optimize-images": "node scripts/optimize-images.mjs",
-    "prebuild": "node scripts/optimize-images.mjs"
+    "prebuild": "node scripts/optimize-images.mjs",
+    "postbuild": "pagefind --site dist"
   },
   "dependencies": {
     "@astrojs/rss": "^4.0.18",
@@ -22,6 +23,7 @@
     "astro": "^5.1.1"
   },
   "devDependencies": {
+    "pagefind": "^1.5.2",
     "sharp": "^0.34.5",
     "typescript": "^5.7.2"
   },
