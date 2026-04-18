@@ -1,0 +1,86 @@
+---
+/**
+ * Picture.astro
+ *
+ * Drop-in replacement for <img> that:
+ *   1. Emits a <picture> with AVIF + WebP sources from the build-time
+ *      manifest produced by scripts/optimize-images.mjs.
+ *   2. Falls back gracefully to the original <img src={src}/> if the
+ *      manifest has no entry yet (e.g. the optimizer hasn't run in a
+ *      fresh dev checkout).
+ *   3. Sets intrinsic width/height from the manifest when the caller
+ *      didn't override them — kills layout shift.
+ *
+ * The `src` prop is always the *original* public URL
+ * (e.g. "/media/foo/bar.jpg"); browsers that can't decode AVIF or
+ * WebP still receive that unmodified source.
+ */
+import manifest from '@/data/image-manifest.json';
+
+interface Props {
+  src: string;
+  alt: string;
+  width?: number | string;
+  height?: number | string;
+  loading?: 'lazy' | 'eager';
+  decoding?: 'async' | 'sync' | 'auto';
+  fetchpriority?: 'high' | 'low' | 'auto';
+  sizes?: string;
+  /** Extra classes forwarded to the <img>. */
+  class?: string;
+  /** Extra classes forwarded to the wrapping <picture>. */
+  pictureClass?: string;
+  /** Forwarded to the <img> style attribute. */
+  style?: string;
+  /** Image-rendering hint; useful for art-like portraits. */
+  objectFit?: 'cover' | 'contain';
+}
+
+const {
+  src,
+  alt,
+  width,
+  height,
+  loading = 'lazy',
+  decoding = 'async',
+  fetchpriority,
+  sizes,
+  class: className,
+  pictureClass,
+  style,
+  objectFit,
+} = Astro.props;
+
+const entry = (manifest as Record<string, {
+  width: number;
+  height: number;
+  avif: string | null;
+  webp: string | null;
+}>)[src];
+
+const resolvedWidth = width ?? entry?.width;
+const resolvedHeight = height ?? entry?.height;
+
+const imgStyle = [
+  objectFit ? `object-fit:${objectFit}` : null,
+  style ?? null,
+]
+  .filter(Boolean)
+  .join(';');
+---
+
+<picture class={pictureClass}>
+  {entry?.avif && <source type="image/avif" srcset={entry.avif} sizes={sizes} />}
+  {entry?.webp && <source type="image/webp" srcset={entry.webp} sizes={sizes} />}
+  <img
+    src={src}
+    alt={alt}
+    width={resolvedWidth}
+    height={resolvedHeight}
+    loading={loading}
+    decoding={decoding}
+    fetchpriority={fetchpriority}
+    class={className}
+    style={imgStyle || undefined}
+  />
+</picture>

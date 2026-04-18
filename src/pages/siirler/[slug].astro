@@ -1,0 +1,115 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import type { PoemEntry } from '@lib/content';
+import { getAllPoems, formatDateTR } from '@lib/content';
+import { render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const poems = await getAllPoems();
+  return poems.map((poem) => ({
+    params: { slug: poem.id },
+    props: { poem },
+  }));
+}
+
+interface Props {
+  poem: PoemEntry;
+}
+
+const { poem } = Astro.props;
+const { Content } = await render(poem);
+
+const description =
+  poem.data.excerpt || `${poem.data.title} — ${poem.data.author}`;
+---
+
+<BaseLayout
+  title={poem.data.title}
+  description={description}
+  type="article"
+  author={poem.data.author}
+  publishedTime={poem.data.date ? poem.data.date.toISOString() : undefined}
+>
+  <article class="poem-page">
+    <header class="poem-page__header">
+      <p class="poem-page__kicker">Şiir</p>
+      <h1>{poem.data.title}</h1>
+      <p class="poem-page__meta">
+        <span>{poem.data.author}</span>
+        {
+          poem.data.date && (
+            <>
+              <span aria-hidden="true">·</span>
+              <time datetime={poem.data.date.toISOString()}>
+                {formatDateTR(poem.data.date)}
+              </time>
+            </>
+          )
+        }
+      </p>
+    </header>
+
+    <div class="poem-page__body">
+      <Content />
+    </div>
+
+    <footer class="poem-page__footer">
+      <a href="/siirler/">← Tüm şiirler</a>
+    </footer>
+  </article>
+</BaseLayout>
+
+<style>
+  .poem-page {
+    max-width: 40rem;
+    margin: 0 auto;
+    padding: 2.5rem 0 3rem;
+  }
+
+  .poem-page__header {
+    margin-bottom: 2rem;
+  }
+
+  .poem-page__kicker {
+    margin: 0 0 0.4rem;
+    font-family: var(--font-sans);
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .poem-page__header h1 {
+    margin: 0 0 0.6rem;
+    font-size: clamp(2rem, 3vw + 1rem, 2.75rem);
+    letter-spacing: -0.01em;
+  }
+
+  .poem-page__meta {
+    margin: 0;
+    font-family: var(--font-sans);
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  /* Render the poem with the natural line breaks coming from the .md file. */
+  .poem-page__body :global(p) {
+    white-space: pre-line;
+    font-family: var(--font-serif);
+    font-size: 1.15rem;
+    line-height: 2;
+    letter-spacing: 0.01em;
+    margin: 0 0 1.75rem;
+  }
+
+  .poem-page__footer {
+    margin-top: 3rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--border);
+    font-family: var(--font-sans);
+    font-size: 0.95rem;
+  }
+</style>

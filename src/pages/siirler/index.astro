@@ -1,0 +1,108 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import { getAllPoems } from '@lib/content';
+
+const poems = await getAllPoems();
+---
+
+<BaseLayout
+  title="Şiirler"
+  description="Türk Güncesi'nin şiir bölümü — Türkçenin ve Türklüğün izinden şiirler."
+>
+  <header class="page-header">
+    <span class="page-header__kicker">Şiir</span>
+    <h1>Şiirler</h1>
+  </header>
+
+  {
+    poems.length > 0 ? (
+      <ul class="poems">
+        {poems.map((poem) => (
+          <li class="poems__item">
+            <a class="poem" href={`/siirler/${poem.id}`}>
+              <h2 class="poem__title">{poem.data.title}</h2>
+              <p class="poem__author">{poem.data.author}</p>
+              {poem.data.excerpt && (
+                <p class="poem__excerpt">{poem.data.excerpt}</p>
+              )}
+              <span class="poem__cta">Şiiri oku →</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <div class="empty-state">
+        <p>Henüz şiir yayımlanmadı.</p>
+      </div>
+    )
+  }
+</BaseLayout>
+
+<style>
+  .poems {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
+  }
+
+  .poems__item {
+    display: flex;
+  }
+
+  .poem {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: 1.5rem 1.6rem;
+    border: 1px solid var(--border);
+    background: var(--bg-elevated);
+    border-radius: var(--radius);
+    color: var(--text);
+    transition:
+      transform 160ms ease,
+      border-color 160ms ease,
+      box-shadow 160ms ease;
+  }
+
+  .poem:hover {
+    text-decoration: none;
+    transform: translateY(-2px);
+    border-color: var(--accent);
+    box-shadow: var(--shadow-card);
+  }
+
+  .poem__title {
+    margin: 0 0 0.35rem;
+    font-size: 1.4rem;
+    letter-spacing: -0.01em;
+  }
+
+  .poem__author {
+    margin: 0 0 0.85rem;
+    font-family: var(--font-sans);
+    font-size: 0.78rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .poem__excerpt {
+    margin: 0 0 1rem;
+    color: var(--text-muted);
+    font-style: italic;
+    white-space: pre-line;
+    font-size: 0.98rem;
+    line-height: 1.55;
+    flex: 1;
+  }
+
+  .poem__cta {
+    font-family: var(--font-sans);
+    font-size: 0.88rem;
+    color: var(--accent);
+    font-weight: 500;
+  }
+</style>

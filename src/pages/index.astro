@@ -1,0 +1,289 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import PostCard from '@components/PostCard.astro';
+import { SITE } from '@lib/config';
+import { getAllPosts, getAllPoems } from '@lib/content';
+
+const posts = await getAllPosts();
+const poems = await getAllPoems();
+const recent = posts.slice(0, 6);
+const latestPoem = poems[0];
+---
+
+<BaseLayout title={SITE.name} description={SITE.description} fullBleed>
+  <section class="hero container">
+    <div class="hero__copy">
+      <h1 class="hero__title">“Türklüğe dair her şey”</h1>
+      <p class="hero__lede">
+        Türk Güncesi, Türk’e ve Türklüğe dair her şeye gönül vermiş iki dostun
+        kurduğu bir buluşma noktası. Burada, bazen bir şiirle duygularımıza
+        tercüman oluyoruz, bazen bir yazıyla fikirlerimizi paylaşıyoruz.
+        Amacımız, kadim Türk mirasını sadece anlatmak değil; hissetmek,
+        düşünmek ve yaşatmak. Köklerimize uzanan bu yolculukta, geçmişten
+        ilham alıp geleceğe söz söylemek isteyen herkese kapımız açık.
+      </p>
+      <div class="hero__actions">
+        <a class="btn btn--primary" href="/tum-yazilar/">Tüm Yazılar</a>
+        <a class="btn btn--ghost" href="/siirler/">Şiirler</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="container intro-cards" aria-label="Ne bulabilirsiniz?">
+    <a class="intro-card" href="/tum-yazilar/">
+      <h2 class="intro-card__title">Yazılar</h2>
+      <p class="intro-card__text">
+        Türk kültürüne, tarihine ve düşünce dünyasına dair denemeler ve
+        makalelerle geçmişten bugüne bir köprü kuruyoruz.
+      </p>
+      <span class="intro-card__cta">Tüm yazılar →</span>
+    </a>
+    <a class="intro-card" href="/siirler/">
+      <h2 class="intro-card__title">Şiirler</h2>
+      <p class="intro-card__text">
+        Duygularımıza tercüman olan dizelerle Türk’ün sesi, nefesi ve hayali
+        oluyoruz.
+      </p>
+      <span class="intro-card__cta">Şiirlere geç →</span>
+    </a>
+  </section>
+
+  {
+    recent.length > 0 ? (
+      <section class="container section">
+        <header class="section__header">
+          <h2>Son Yazılar</h2>
+          <a class="section__more" href="/tum-yazilar/">Tümünü gör →</a>
+        </header>
+        <div class="post-grid post-grid--cards">
+          {recent.map((post) => <PostCard post={post} />)}
+        </div>
+      </section>
+    ) : (
+      <section class="container">
+        <div class="empty-state">
+          <p>Henüz yayımlanmış bir yazı bulunmuyor.</p>
+        </div>
+      </section>
+    )
+  }
+
+  {
+    latestPoem && (
+      <section class="container section">
+        <header class="section__header">
+          <h2>Şiirlerden</h2>
+          <a class="section__more" href="/siirler/">Tüm şiirler →</a>
+        </header>
+        <a class="poem-card" href={`/siirler/${latestPoem.id}`}>
+          <p class="poem-card__kicker">{latestPoem.data.author}</p>
+          <h3 class="poem-card__title">{latestPoem.data.title}</h3>
+          {latestPoem.data.excerpt && (
+            <p class="poem-card__excerpt">{latestPoem.data.excerpt}</p>
+          )}
+          <span class="poem-card__cta">Şiiri oku →</span>
+        </a>
+      </section>
+    )
+  }
+</BaseLayout>
+
+<style>
+  .hero {
+    padding: 4rem 1.25rem 2rem;
+    text-align: center;
+  }
+
+  .hero__copy {
+    max-width: 44rem;
+    margin: 0 auto;
+  }
+
+  .hero__title {
+    font-family: var(--font-serif);
+    font-size: clamp(2.25rem, 5vw + 1rem, 3.75rem);
+    line-height: 1.12;
+    letter-spacing: -0.01em;
+    margin: 0 0 1rem;
+  }
+
+  .hero__lede {
+    font-size: 1.12rem;
+    line-height: 1.7;
+    color: var(--text-muted);
+    margin: 0 auto;
+  }
+
+  .hero__actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1.75rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .intro-cards {
+    margin: 1rem auto 2.5rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+  }
+
+  @media (max-width: 720px) {
+    .intro-cards {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .intro-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    padding: 1.75rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    transition:
+      border-color 160ms ease,
+      box-shadow 160ms ease,
+      transform 160ms ease;
+  }
+
+  .intro-card:hover,
+  .intro-card:focus-visible {
+    text-decoration: none;
+    border-color: var(--accent);
+    box-shadow: var(--shadow-card);
+    transform: translateY(-2px);
+  }
+
+  .intro-card__title {
+    font-family: var(--font-serif);
+    margin: 0;
+    font-size: 1.5rem;
+  }
+
+  .intro-card__text {
+    margin: 0;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  .intro-card__cta {
+    margin-top: auto;
+    font-family: var(--font-sans);
+    font-size: 0.9rem;
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.65rem 1.1rem;
+    border-radius: var(--radius);
+    font-family: var(--font-sans);
+    font-weight: 500;
+    font-size: 0.95rem;
+    text-decoration: none;
+    border: 1px solid transparent;
+    transition:
+      background 120ms ease,
+      color 120ms ease,
+      border-color 120ms ease;
+  }
+
+  .btn--primary {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+
+  .btn--primary:hover {
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
+    color: #fff;
+    text-decoration: none;
+  }
+
+  .btn--ghost {
+    background: transparent;
+    color: var(--text);
+    border-color: var(--border);
+  }
+
+  .btn--ghost:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .section {
+    padding: 2rem 1.25rem 0;
+  }
+
+  .section__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 1.25rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.5rem;
+  }
+
+  .section__more {
+    font-family: var(--font-sans);
+    font-size: 0.9rem;
+  }
+
+  /* Poem teaser on the homepage */
+  .poem-card {
+    display: block;
+    padding: 1.5rem 1.75rem;
+    border: 1px solid var(--border);
+    background: var(--bg-elevated);
+    border-radius: var(--radius);
+    color: var(--text);
+    transition:
+      border-color 160ms ease,
+      box-shadow 160ms ease,
+      transform 160ms ease;
+  }
+
+  .poem-card:hover {
+    text-decoration: none;
+    border-color: var(--accent);
+    box-shadow: var(--shadow-card);
+    transform: translateY(-2px);
+  }
+
+  .poem-card__kicker {
+    margin: 0 0 0.3rem;
+    font-family: var(--font-sans);
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .poem-card__title {
+    margin: 0 0 0.6rem;
+    font-size: 1.45rem;
+  }
+
+  .poem-card__excerpt {
+    margin: 0 0 0.9rem;
+    color: var(--text-muted);
+    font-style: italic;
+    white-space: pre-line;
+  }
+
+  .poem-card__cta {
+    font-family: var(--font-sans);
+    font-size: 0.9rem;
+    color: var(--accent);
+    font-weight: 500;
+  }
+</style>

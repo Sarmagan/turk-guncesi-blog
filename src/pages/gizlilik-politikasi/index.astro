@@ -1,0 +1,69 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import { SITE } from '@lib/config';
+
+const lastUpdated = '17 Nisan 2026';
+---
+
+<BaseLayout
+  title="Gizlilik Politikası"
+  description="Türk Güncesi gizlilik politikası: hangi verileri topluyoruz, nasıl kullanıyoruz."
+>
+  <header class="page-header">
+    <span class="page-header__kicker">Yasal</span>
+    <h1>Gizlilik Politikası</h1>
+    <p class="page-header__lede">Son güncelleme: {lastUpdated}</p>
+  </header>
+
+  <article class="post-body prose">
+    <p>
+      Türk Güncesi (<em>blog.turkguncesi.com</em>) olarak ziyaretçilerimizin
+      gizliliğine önem veriyoruz. Bu politika, siteyi ziyaret ettiğinizde hangi
+      bilgilerin işlendiğini açıklar.
+    </p>
+
+    <h2>Topladığımız veriler</h2>
+    <p>
+      Bu site statik olarak sunulmaktadır; ziyaretinize ait kişisel bir hesap,
+      profil ya da kullanıcı girişi tutulmaz. Sunucu tarafında tutulan tek
+      veri, standart erişim günlükleridir (IP adresi, tarayıcı bilgisi, istek
+      yapılan URL). Bu günlükler yalnızca güvenlik ve teknik teşhis amacıyla
+      saklanır ve üçüncü taraflarla paylaşılmaz.
+    </p>
+
+    <h2>Çerezler</h2>
+    <p>
+      Site reklam, analiz veya takip amaçlı çerez kullanmaz. Ayrıntılı bilgi
+      için <a href="/cerez-politikasi/">Çerez Politikası</a> sayfamıza
+      bakabilirsiniz.
+    </p>
+
+    <h2>Üçüncü taraf hizmetler</h2>
+    <p>
+      Sitenin kendisi yalnızca statik dosyalar yayımlar ve hiçbir üçüncü
+      taraf analiz aracı çalıştırmaz. Yazılara gömülü olabilecek görseller
+      ya da videolar ilgili sağlayıcıların (ör. YouTube) kendi politikalarına
+      tabidir.
+    </p>
+
+    <h2>Haklarınız</h2>
+    <p>
+      Türkiye'de yürürlükteki KVKK ve Avrupa Birliği GDPR düzenlemeleri
+      kapsamındaki haklarınızı kullanmak ya da sorularınızı iletmek için
+      <a href={`mailto:${SITE.contactEmail}`}>{SITE.contactEmail}</a>
+      adresinden bize ulaşabilirsiniz.
+    </p>
+
+    <h2>Değişiklikler</h2>
+    <p>
+      Bu politika zaman zaman güncellenebilir. Güncel sürüm her zaman bu
+      sayfada yer alır.
+    </p>
+  </article>
+</BaseLayout>
+
+<style>
+  .prose {
+    max-width: 44rem;
+  }
+</style>

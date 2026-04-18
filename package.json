@@ -1,0 +1,31 @@
+{
+  "name": "turkguncesi",
+  "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Türk Güncesi — Astro frontend fed by the WordPress REST API at blog.turkguncesi.com",
+  "scripts": {
+    "predev": "node scripts/optimize-images.mjs",
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "migrate": "node scripts/migrate-from-wp.mjs",
+    "normalize": "node scripts/normalize-content.mjs",
+    "optimize-images": "node scripts/optimize-images.mjs",
+    "prebuild": "node scripts/optimize-images.mjs"
+  },
+  "dependencies": {
+    "@astrojs/rss": "^4.0.18",
+    "@astrojs/sitemap": "^3.2.1",
+    "astro": "^5.1.1"
+  },
+  "devDependencies": {
+    "sharp": "^0.34.5",
+    "typescript": "^5.7.2"
+  },
+  "engines": {
+    "node": ">=18.17.0"
+  }
+}

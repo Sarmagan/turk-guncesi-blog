@@ -1,0 +1,103 @@
+---
+import '@/styles/global.css';
+import Header from '@components/Header.astro';
+import Footer from '@components/Footer.astro';
+import SEO from '@components/SEO.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+  image?: string;
+  type?: 'website' | 'article';
+  publishedTime?: string;
+  modifiedTime?: string;
+  author?: string;
+  noindex?: boolean;
+  /** If true, removes the default .container wrapper around <slot/> so the page can manage its own layout. */
+  fullBleed?: boolean;
+}
+
+const {
+  title,
+  description,
+  image,
+  type,
+  publishedTime,
+  modifiedTime,
+  author,
+  noindex,
+  fullBleed = false,
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#fbfaf7" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#141311" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png" />
+    <link rel="shortcut icon" href="/favicon-32.png" />
+    <link rel="apple-touch-icon" href="/logo.png" />
+    {/* Boot script: apply saved / preferred theme BEFORE paint to avoid a flash. */}
+    <script is:inline>
+      (() => {
+        try {
+          const saved = localStorage.getItem('tg-theme');
+          const prefersDark =
+            window.matchMedia &&
+            window.matchMedia('(prefers-color-scheme: dark)').matches;
+          const theme = saved || (prefersDark ? 'dark' : 'light');
+          document.documentElement.dataset.theme = theme;
+        } catch {
+          document.documentElement.dataset.theme = 'light';
+        }
+      })();
+    </script>
+    <SEO
+      title={title}
+      description={description}
+      image={image}
+      type={type}
+      publishedTime={publishedTime}
+      modifiedTime={modifiedTime}
+      author={author}
+      noindex={noindex}
+    />
+    <slot name="head" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">İçeriğe geç</a>
+    <Header />
+    <main id="main">
+      {
+        fullBleed ? (
+          <slot />
+        ) : (
+          <div class="container">
+            <slot />
+          </div>
+        )
+      }
+    </main>
+    <Footer />
+
+    <style is:global>
+      .skip-link {
+        position: absolute;
+        left: -9999px;
+        top: 0;
+        background: var(--accent);
+        color: #fff;
+        padding: 0.5rem 0.9rem;
+        z-index: 999;
+      }
+      .skip-link:focus {
+        left: 1rem;
+        top: 1rem;
+      }
+    </style>
+  </body>
+</html>

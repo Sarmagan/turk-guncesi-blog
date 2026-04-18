@@ -1,0 +1,65 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+
+const lastUpdated = '17 Nisan 2026';
+---
+
+<BaseLayout
+  title="Çerez Politikası"
+  description="Türk Güncesi çerez politikası: sitemiz reklam veya izleme çerezi kullanmaz."
+>
+  <header class="page-header">
+    <span class="page-header__kicker">Yasal</span>
+    <h1>Çerez Politikası</h1>
+    <p class="page-header__lede">Son güncelleme: {lastUpdated}</p>
+  </header>
+
+  <article class="post-body prose">
+    <p>
+      <strong>
+        Türk Güncesi reklam, analiz veya kişisel izleme amaçlı hiçbir çerez
+        kullanmaz.
+      </strong>
+    </p>
+
+    <p>
+      Siteyi ziyaret ettiğinizde tarayıcınıza kimlik tanımlayıcı, oturum,
+      takip pikseli veya benzeri kalıcı veri bırakılmaz. Google Analytics,
+      Facebook Pixel gibi üçüncü taraf izleme araçlarını çalıştırmıyoruz.
+    </p>
+
+    <h2>İstisnalar</h2>
+    <p>
+      Yazıların içinde gömülü üçüncü taraf içerikler (ör. YouTube videoları
+      ya da Tweet gömüleri) yer aldığında, ilgili sağlayıcılar kendi çerezlerini
+      ayarlayabilir. Bu çerezler bizim kontrolümüzde değildir; üçüncü tarafın
+      kendi gizlilik politikasına tabidir. Bu tür gömüler mümkün olduğunca az
+      kullanılır.
+    </p>
+
+    <h2>Tarayıcı teknik çerezleri</h2>
+    <p>
+      Bazı tarayıcılar kendiliğinden oturum/tercih çerezleri oluşturabilir
+      (ör. karanlık mod, dil). Sitemiz böyle çerezleri oluşturmaz, okumaz ya
+      da sunucuya göndermez.
+    </p>
+
+    <h2>Tarayıcı ayarlarıyla kontrol</h2>
+    <p>
+      Dilerseniz tarayıcınızın ayarlarından tüm çerezleri engelleyebilirsiniz.
+      Bu, sitemizin görüntülenmesini etkilemez.
+    </p>
+
+    <p>
+      Daha fazla bilgi için <a href="/gizlilik-politikasi/">
+        Gizlilik Politikası
+      </a> sayfamıza bakabilirsiniz.
+    </p>
+  </article>
+</BaseLayout>
+
+<style>
+  .prose {
+    max-width: 44rem;
+  }
+</style>

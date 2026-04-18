@@ -1,0 +1,16 @@
+[
+  {
+    "id": 2,
+    "name": "Süleyman Armağan Er",
+    "slug": "armagan-er",
+    "description": "University of Washington Elektrik ve Bilgisayar Mühendisliği Bölümü’nde doktora çalışmalarımı sürdürmekteyim. Bir Yörük-Türkmen olarak Altaylar’dan Tuna’ya bütün Türk dünyasının birliğine gönülden inanıyorum. “Mefkûre istikbalin hâlikidir” diyerek Türk kültürünü edebiyattan tarihe, musikiden mimariye kadar birçok yönüyle yaşatmayı amaçlayan “Türk Güncesi” platformunun kurucu ortaklarından oldum. İnancım geçmişin izinde yürüyen Türklerin geleceği kuracağıdır.",
+    "avatar": "https://secure.gravatar.com/avatar/e618616356a63411357a78320e4c995dbe10eda6c620baec0d6e7a23919dea75?s=96&d=mm&r=g"
+  },
+  {
+    "id": 3,
+    "name": "Rafet Kavak",
+    "slug": "rafet-kavak",
+    "description": "University of Illinois Urbana-Champaign’de fizik doktorası yapıyorum. Türk kültürüne dair doğru ve güvenilir bilgilere ulaşmakta giderek daha fazla zorlanmam, can dostum Süleyman Armağan Er ile birlikte bu platformu kurma ihtiyacını doğurdu. Zira internetteki bilgi yığını arasında sahih kaynaklar günden güne görünmez hale gelirken, asılsız ve temelsiz içerikler hızla yayılıyor. Bu nedenle “Türk Güncesi” platformunun kurucu ortaklarından biri olarak amacım; kültürümüzü sağlam kaynaklara dayalı bilgilerle belgelemek ve bu mirası gelecek nesillere doğru bir şekilde aktarmaktır. İnanıyorum ki geçmişini doğru tanıyan bir millet, geleceğini daha bilinçli inşa edebilir.",
+    "avatar": "https://secure.gravatar.com/avatar/fb699bab066f68b5efa8c7932978accf928f341787e19f28f9a25f2c2aac00c8?s=96&d=mm&r=g"
+  }
+]

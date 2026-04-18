@@ -1,0 +1,140 @@
+---
+/**
+ * Light/dark theme toggle.
+ *
+ * - Initial theme is applied by the inline boot script in BaseLayout.astro
+ *   *before* first paint (prevents the "flash of wrong theme").
+ * - This button flips the `data-theme` attribute on <html>, persists the
+ *   choice in localStorage, and dispatches a `themechange` event so any
+ *   third-party embeds can react if needed.
+ */
+---
+
+<button
+  id="theme-toggle"
+  type="button"
+  class="theme-toggle"
+  aria-label="Temayı değiştir"
+  title="Temayı değiştir (aydınlık / karanlık)"
+  data-pressed="false"
+>
+  <svg class="theme-toggle__icon theme-toggle__icon--sun" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+    <circle cx="12" cy="12" r="4" fill="currentColor" />
+    <g stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+      <line x1="12" y1="2.5" x2="12" y2="5" />
+      <line x1="12" y1="19" x2="12" y2="21.5" />
+      <line x1="2.5" y1="12" x2="5" y2="12" />
+      <line x1="19" y1="12" x2="21.5" y2="12" />
+      <line x1="4.8" y1="4.8" x2="6.5" y2="6.5" />
+      <line x1="17.5" y1="17.5" x2="19.2" y2="19.2" />
+      <line x1="4.8" y1="19.2" x2="6.5" y2="17.5" />
+      <line x1="17.5" y1="6.5" x2="19.2" y2="4.8" />
+    </g>
+  </svg>
+  <svg class="theme-toggle__icon theme-toggle__icon--moon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+    <path
+      d="M20.5 14.3A8.5 8.5 0 0 1 9.7 3.5a.7.7 0 0 0-.9-.85A9.5 9.5 0 1 0 21.35 15.2a.7.7 0 0 0-.85-.9Z"
+      fill="currentColor"
+    />
+  </svg>
+</button>
+
+<style>
+  .theme-toggle {
+    --size: 2.25rem;
+    width: var(--size);
+    height: var(--size);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--bg-elevated);
+    color: var(--text);
+    cursor: pointer;
+    padding: 0;
+    position: relative;
+    transition:
+      background 120ms ease,
+      color 120ms ease,
+      border-color 120ms ease,
+      transform 120ms ease;
+  }
+
+  .theme-toggle:hover,
+  .theme-toggle:focus-visible {
+    color: var(--accent);
+    border-color: var(--accent);
+    transform: translateY(-1px);
+  }
+
+  .theme-toggle__icon {
+    width: 1.05rem;
+    height: 1.05rem;
+    position: absolute;
+    transition:
+      opacity 180ms ease,
+      transform 220ms ease;
+  }
+
+  /* Default (light theme): show moon (click → go dark) */
+  .theme-toggle__icon--sun {
+    opacity: 0;
+    transform: rotate(-35deg) scale(0.7);
+  }
+
+  .theme-toggle__icon--moon {
+    opacity: 1;
+    transform: rotate(0) scale(1);
+  }
+
+  /* Dark theme: show sun (click → go light) */
+  :global(html[data-theme='dark']) .theme-toggle__icon--sun {
+    opacity: 1;
+    transform: rotate(0) scale(1);
+  }
+
+  :global(html[data-theme='dark']) .theme-toggle__icon--moon {
+    opacity: 0;
+    transform: rotate(35deg) scale(0.7);
+  }
+</style>
+
+<script is:inline>
+  (() => {
+    const STORAGE_KEY = 'tg-theme';
+    const btn = document.getElementById('theme-toggle');
+    if (!btn) return;
+
+    const syncPressed = () => {
+      const isDark = document.documentElement.dataset.theme === 'dark';
+      btn.setAttribute('aria-pressed', isDark ? 'true' : 'false');
+    };
+
+    syncPressed();
+
+    btn.addEventListener('click', () => {
+      const next =
+        document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+      document.documentElement.dataset.theme = next;
+      try {
+        localStorage.setItem(STORAGE_KEY, next);
+      } catch {}
+      syncPressed();
+      document.dispatchEvent(
+        new CustomEvent('themechange', { detail: { theme: next } }),
+      );
+    });
+
+    // If the OS theme changes and the user hasn't explicitly chosen one,
+    // follow along.
+    const media = window.matchMedia('(prefers-color-scheme: dark)');
+    media.addEventListener?.('change', (e) => {
+      try {
+        if (localStorage.getItem(STORAGE_KEY)) return;
+      } catch {}
+      document.documentElement.dataset.theme = e.matches ? 'dark' : 'light';
+      syncPressed();
+    });
+  })();
+</script>

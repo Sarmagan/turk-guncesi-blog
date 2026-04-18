@@ -1,0 +1,58 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Sayfa bulunamadı"
+  description="Aradığınız sayfa bulunamadı (404)."
+  noindex
+>
+  <section class="notfound">
+    <p class="notfound__code">404</p>
+    <h1>Aradığınız sayfa bulunamadı</h1>
+    <p class="notfound__lede">
+      Bağlantı eskimiş veya sayfa kaldırılmış olabilir. Aşağıdan devam
+      edebilirsiniz.
+    </p>
+    <ul class="notfound__links">
+      <li><a href="/">Ana sayfa</a></li>
+      <li><a href="/tum-yazilar/">Tüm Yazılar</a></li>
+      <li><a href="/siirler/">Şiirler</a></li>
+      <li><a href="/hakkimizda/">Hakkımızda</a></li>
+    </ul>
+  </section>
+</BaseLayout>
+
+<style>
+  .notfound {
+    max-width: 36rem;
+    margin: 0 auto;
+    padding: 4rem 0 5rem;
+    text-align: center;
+  }
+
+  .notfound__code {
+    font-family: var(--font-serif);
+    font-size: clamp(4rem, 10vw, 6.5rem);
+    line-height: 1;
+    margin: 0 0 0.5rem;
+    color: var(--accent);
+    letter-spacing: -0.03em;
+  }
+
+  .notfound__lede {
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+  }
+
+  .notfound__links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    font-family: var(--font-sans);
+  }
+</style>

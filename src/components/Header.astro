@@ -1,0 +1,194 @@
+---
+import { NAV_LINKS, SITE } from '@lib/config';
+import ThemeToggle from './ThemeToggle.astro';
+
+const currentPath = Astro.url.pathname.replace(/\/+$/, '') || '/';
+
+function isActive(href: string): boolean {
+  const normalized = href.replace(/\/+$/, '') || '/';
+  return currentPath === normalized;
+}
+---
+
+<header class="site-header">
+  <div class="container site-header__inner">
+    <a class="brand" href="/" aria-label={`${SITE.name} ana sayfa`}>
+      <img
+        class="brand__logo"
+        src="/logo.png"
+        alt=""
+        width="40"
+        height="40"
+        loading="eager"
+        decoding="async"
+        aria-hidden="true"
+      />
+      <span class="brand__text">
+        <span class="brand__name">{SITE.name}</span>
+      </span>
+    </a>
+
+    <div class="site-header__right">
+      <nav aria-label="Ana gezinme">
+        <input id="nav-toggle" type="checkbox" class="nav-toggle" aria-label="Menüyü aç/kapat" />
+        <label for="nav-toggle" class="nav-toggle__btn" aria-hidden="true">
+          <span></span><span></span><span></span>
+        </label>
+        <ul class="nav">
+          {
+            NAV_LINKS.map(({ href, label }) => (
+              <li>
+                <a href={href} aria-current={isActive(href) ? 'page' : undefined}>
+                  {label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+      <ThemeToggle />
+    </div>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    background: var(--header-blur-bg, var(--bg-elevated));
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    backdrop-filter: saturate(140%) blur(8px);
+    -webkit-backdrop-filter: saturate(140%) blur(8px);
+  }
+
+  .site-header__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-top: 0.9rem;
+    padding-bottom: 0.9rem;
+  }
+
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  .brand:hover,
+  .brand:focus-visible {
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  .brand__logo {
+    display: block;
+    width: 2.4rem;
+    height: 2.4rem;
+    border-radius: 6px;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+
+  .brand__text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.1;
+  }
+
+  .brand__name {
+    font-family: var(--font-serif);
+    font-weight: 700;
+    font-size: 1.15rem;
+    letter-spacing: -0.01em;
+  }
+
+  .site-header__right {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  nav {
+    position: relative;
+  }
+
+  .nav {
+    display: flex;
+    gap: 1.25rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-family: var(--font-sans);
+    font-size: 0.95rem;
+  }
+
+  .nav a {
+    color: var(--text);
+    padding: 0.3rem 0.1rem;
+    border-bottom: 2px solid transparent;
+  }
+
+  .nav a:hover,
+  .nav a:focus-visible {
+    color: var(--accent);
+    text-decoration: none;
+    border-bottom-color: var(--accent);
+  }
+
+  .nav a[aria-current='page'] {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  /* Mobile hamburger — CSS-only (no JS) */
+  .nav-toggle {
+    display: none;
+  }
+
+  .nav-toggle__btn {
+    display: none;
+  }
+
+  @media (max-width: 720px) {
+    .nav-toggle__btn {
+      display: inline-flex;
+      flex-direction: column;
+      justify-content: space-between;
+      width: 1.6rem;
+      height: 1.2rem;
+      cursor: pointer;
+    }
+
+    .nav-toggle__btn span {
+      display: block;
+      height: 2px;
+      background: var(--text);
+      border-radius: 1px;
+      transition: transform 160ms ease;
+    }
+
+    .nav {
+      position: absolute;
+      right: 0;
+      top: calc(100% + 0.75rem);
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.75rem 1rem;
+      flex-direction: column;
+      gap: 0.75rem;
+      min-width: 12rem;
+      box-shadow: var(--shadow-card-strong);
+      display: none;
+    }
+
+    .nav-toggle:checked ~ .nav {
+      display: flex;
+    }
+  }
+</style>

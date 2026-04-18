@@ -1,0 +1,125 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import { getAllAuthors, stripHtml } from '@lib/content';
+
+const FEATURED_ORDER = ['armagan-er', 'rafet-kavak'];
+
+const authors = getAllAuthors()
+  .sort((a, b) => {
+    const ai = FEATURED_ORDER.indexOf(a.slug);
+    const bi = FEATURED_ORDER.indexOf(b.slug);
+    if (ai !== -1 || bi !== -1) {
+      return (ai === -1 ? Number.POSITIVE_INFINITY : ai) -
+        (bi === -1 ? Number.POSITIVE_INFINITY : bi);
+    }
+    return a.name.localeCompare(b.name, 'tr');
+  });
+---
+
+<BaseLayout
+  title="Yazarlar"
+  description="Türk Güncesi'ne katkıda bulunan yazarlar."
+>
+  <header class="page-header">
+    <span class="page-header__kicker">Künye</span>
+    <h1>Yazarlar</h1>
+    <p class="page-header__lede">
+      Türk Güncesi'ni yazılarıyla besleyen isimler.
+    </p>
+  </header>
+
+  <figure class="founders">
+    <img
+      src="/armagan-rafet-nyc.jpg"
+      alt="Rafet Kavak (solda) ve Süleyman Armağan Er (sağda) New York'ta"
+      loading="eager"
+      decoding="async"
+      width="1600"
+      height="2400"
+    />
+    <figcaption>Rafet Kavak (solda) ve Süleyman Armağan Er (sağda) &mdash; New York</figcaption>
+  </figure>
+
+  {
+    authors.length > 0 ? (
+      <div class="authors">
+        {authors.map((author) => {
+          const bio = stripHtml(author.description || '', 4000);
+          return (
+            <article class="author">
+              <div class="author__body">
+                <h2 class="author__name">{author.name}</h2>
+                {bio && <p class="author__bio">{bio}</p>}
+              </div>
+            </article>
+          );
+        })}
+      </div>
+    ) : (
+      <div class="empty-state">
+        <p>Yazar listesi henüz yüklenmedi.</p>
+      </div>
+    )
+  }
+</BaseLayout>
+
+<style>
+  .founders {
+    margin: 0 0 2rem;
+    max-width: 48rem;
+  }
+
+  .founders img {
+    width: 100%;
+    height: auto;
+    max-height: 560px;
+    object-fit: cover;
+    border-radius: var(--radius);
+    display: block;
+    background: var(--surface);
+  }
+
+  .founders figcaption {
+    margin-top: 0.6rem;
+    font-family: var(--font-sans);
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    text-align: center;
+  }
+
+  .authors {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    max-width: 48rem;
+  }
+
+  .author {
+    padding: 1.5rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+  }
+
+  .author__body {
+    min-width: 0;
+  }
+
+  .author__name {
+    margin: 0 0 0.5rem;
+    font-size: 1.2rem;
+  }
+
+  .author__bio {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 0.98rem;
+    line-height: 1.6;
+  }
+
+  @media (max-width: 560px) {
+    .author {
+      padding: 1.25rem;
+    }
+  }
+</style>

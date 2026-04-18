@@ -1,0 +1,146 @@
+---
+import { SITE, SOCIAL_LINKS } from '@lib/config';
+import SocialIcons from './SocialIcons.astro';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="container site-footer__inner">
+    <div class="site-footer__brand">
+      <p class="site-footer__name">{SITE.name}</p>
+      <p class="site-footer__note">
+        Türk kültürü, edebiyatı ve şiirine dair özgün içerikler.
+      </p>
+      <p class="site-footer__mainlink">
+        <a href={SOCIAL_LINKS.mainSite} rel="noopener">turkguncesi.com</a>
+      </p>
+      <p class="site-footer__contact">
+        İletişim:
+        <a href={`mailto:${SITE.contactEmail}`}>{SITE.contactEmail}</a>
+      </p>
+    </div>
+
+    <nav class="site-footer__nav" aria-label="Alt gezinme">
+      <ul>
+        <li><a href="/tum-yazilar/">Tüm Yazılar</a></li>
+        <li><a href="/siirler/">Şiirler</a></li>
+        <li><a href="/hakkimizda/">Hakkımızda</a></li>
+        <li><a href="/yazarlar/">Yazarlar</a></li>
+        <li><a href="/gizlilik-politikasi/">Gizlilik</a></li>
+        <li><a href="/cerez-politikasi/">Çerezler</a></li>
+      </ul>
+    </nav>
+
+    <div class="site-footer__social">
+      <span class="site-footer__social-label">Bizi takip edin</span>
+      <SocialIcons />
+    </div>
+  </div>
+
+  <div class="site-footer__copy container">
+    <span>© {year} {SITE.name}. Tüm hakları saklıdır.</span>
+    <span>
+      Ana site: <a href={SOCIAL_LINKS.mainSite} rel="noopener">turkguncesi.com</a>
+    </span>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    margin-top: 4rem;
+    background: var(--bg-elevated);
+    border-top: 1px solid var(--border);
+    color: var(--text);
+    flex-shrink: 0;
+  }
+
+  .site-footer__inner {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr;
+    gap: 2rem;
+    padding: 2.25rem 1.25rem 1.75rem;
+  }
+
+  @media (max-width: 760px) {
+    .site-footer__inner {
+      grid-template-columns: 1fr;
+      gap: 1.75rem;
+    }
+  }
+
+  .site-footer__name {
+    margin: 0 0 0.25rem;
+    font-weight: 700;
+    font-size: 1.1rem;
+  }
+
+  .site-footer__note {
+    margin: 0 0 0.5rem;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+  }
+
+  .site-footer__mainlink {
+    margin: 0;
+    font-family: var(--font-sans);
+    font-size: 0.9rem;
+  }
+
+  .site-footer__contact {
+    margin: 0.35rem 0 0;
+    font-family: var(--font-sans);
+    font-size: 0.9rem;
+    color: var(--text-muted);
+  }
+
+  .site-footer__contact a {
+    color: var(--text);
+  }
+
+  .site-footer__contact a:hover,
+  .site-footer__contact a:focus-visible {
+    color: var(--accent);
+  }
+
+  .site-footer__nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.4rem 1rem;
+    font-family: var(--font-sans);
+    font-size: 0.95rem;
+  }
+
+  .site-footer__nav a {
+    color: var(--text);
+  }
+
+  .site-footer__nav a:hover {
+    color: var(--accent);
+  }
+
+  .site-footer__social-label {
+    display: block;
+    font-family: var(--font-sans);
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 0.6rem;
+  }
+
+  .site-footer__copy {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.25rem 1.75rem;
+    border-top: 1px solid var(--border);
+    font-family: var(--font-sans);
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    flex-wrap: wrap;
+  }
+</style>
