@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '@layouts/BaseLayout.astro';
+import AuthorBox from '@components/AuthorBox.astro';
 import type { PostEntry } from '@lib/content';
 import {
   getAllPosts,
@@ -9,6 +10,7 @@ import {
   enhancePostHtml,
   readingTimeMinutes,
   getAdjacentPosts,
+  getAuthorBySlug,
 } from '@lib/content';
 import { SITE } from '@lib/config';
 import type { Series } from '@lib/series';
@@ -102,6 +104,9 @@ const breadcrumbs =
         { name: shareTitleRaw, url: postUrl },
       ]
     : [];
+
+const postAuthor =
+  props.kind === 'post' ? getAuthorBySlug(postData!.author.slug) : null;
 ---
 
 {
@@ -342,6 +347,8 @@ const breadcrumbs =
             </li>
           </ul>
         </section>
+
+        {postAuthor && <AuthorBox author={postAuthor} />}
 
         {(previousPost || nextPost) && (
           <nav class="post-nav" aria-label="Yazı gezintisi" data-pagefind-ignore>

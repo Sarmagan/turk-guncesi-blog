@@ -1,0 +1,104 @@
+---
+import type { AuthorRecord } from '@lib/content';
+import { authorInitials, stripHtml } from '@lib/content';
+
+interface Props {
+  author: AuthorRecord;
+  bioMaxLen?: number;
+}
+
+const { author, bioMaxLen = 240 } = Astro.props;
+const initials = authorInitials(author.name);
+const bio = author.description ? stripHtml(author.description, bioMaxLen) : '';
+const profileHref = `/yazarlar/#${author.slug}`;
+---
+
+<aside class="author-box" aria-label="Yazar hakkında" data-pagefind-ignore>
+  <div class="author-box__monogram" aria-hidden="true">{initials}</div>
+  <div class="author-box__body">
+    <p class="author-box__kicker">Yazar</p>
+    <p class="author-box__name">{author.name}</p>
+    {bio && <p class="author-box__bio">{bio}</p>}
+    <a class="author-box__link" href={profileHref}>
+      Tüm yazarlar →
+    </a>
+  </div>
+</aside>
+
+<style>
+  .author-box {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 1.1rem;
+    align-items: flex-start;
+    margin-top: 2.5rem;
+    padding: 1.25rem 1.35rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+  }
+
+  .author-box__monogram {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 999px;
+    background: var(--accent);
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: 1rem;
+    letter-spacing: 0.02em;
+    flex-shrink: 0;
+  }
+
+  .author-box__body {
+    min-width: 0;
+  }
+
+  .author-box__kicker {
+    margin: 0 0 0.25rem;
+    font-family: var(--font-sans);
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .author-box__name {
+    margin: 0 0 0.45rem;
+    font-family: var(--font-serif);
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.3;
+  }
+
+  .author-box__bio {
+    margin: 0 0 0.6rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+    font-size: 0.95rem;
+  }
+
+  .author-box__link {
+    font-family: var(--font-sans);
+    font-size: 0.88rem;
+    color: var(--accent);
+  }
+
+  @media (max-width: 480px) {
+    .author-box {
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+    }
+
+    .author-box__monogram {
+      width: 2.5rem;
+      height: 2.5rem;
+      font-size: 0.9rem;
+    }
+  }
+</style>

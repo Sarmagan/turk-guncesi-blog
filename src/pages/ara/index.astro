@@ -76,9 +76,11 @@ const description = `${SITE.name} arşivinde makalelerde ve şiirlerde arama yap
       if (!pagefindPromise) {
         pagefindPromise = (async () => {
           try {
-            const mod = (await import(
-              /* @vite-ignore */ '/pagefind/pagefind.js'
-            )) as PagefindSearch;
+            // Build URL at runtime so Vite can't statically analyze the import.
+            // Pagefind is only generated after `astro build` + `pagefind --site dist`,
+            // so this will fail gracefully in `astro dev`.
+            const url = new URL('/pagefind/pagefind.js', window.location.origin).href;
+            const mod = (await import(/* @vite-ignore */ url)) as PagefindSearch;
             await (mod as unknown as { init?: () => Promise<void> }).init?.();
             pagefind = mod;
             return mod;

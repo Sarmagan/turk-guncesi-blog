@@ -46,7 +46,7 @@ const authors = getAllAuthors()
         {authors.map((author) => {
           const bio = stripHtml(author.description || '', 4000);
           return (
-            <article class="author">
+            <article class="author" id={author.slug}>
               <div class="author__body">
                 <h2 class="author__name">{author.name}</h2>
                 {bio && <p class="author__bio">{bio}</p>}
@@ -99,6 +99,13 @@ const authors = getAllAuthors()
     background: var(--bg-elevated);
     border: 1px solid var(--border);
     border-radius: var(--radius);
+    /* Keep fragment-linked targets clear of the sticky header */
+    scroll-margin-top: 5rem;
+  }
+
+  .author:target {
+    border-color: var(--accent);
+    box-shadow: var(--shadow-card);
   }
 
   .author__body {

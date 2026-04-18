@@ -61,6 +61,28 @@ export function getAllAuthors(): AuthorRecord[] {
   return (authorsData as AuthorRecord[]).filter((a) => !!a.name);
 }
 
+export function getAuthorBySlug(slug: string | undefined): AuthorRecord | null {
+  if (!slug) return null;
+  const match = (authorsData as AuthorRecord[]).find((a) => a.slug === slug);
+  return match ?? null;
+}
+
+/**
+ * Build a 1–2 character uppercase monogram from a full name. Uses the
+ * Turkish locale so "i" -> "İ" (not "I"), which matters for names like
+ * "İbrahim".
+ */
+export function authorInitials(name: string): string {
+  const parts = name
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+  if (parts.length === 0) return '?';
+  const first = parts[0]!.charAt(0);
+  const last = parts.length > 1 ? parts[parts.length - 1]!.charAt(0) : '';
+  return (first + last).toLocaleUpperCase('tr');
+}
+
 /* ------------------------------- poems -------------------------------- */
 
 export async function getAllPoems(): Promise<PoemEntry[]> {
