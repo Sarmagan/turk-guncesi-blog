@@ -19,6 +19,7 @@ export const SITE = {
 export const NAV_LINKS = [
   { href: '/tum-yazilar/', label: 'Tüm Yazılar' },
   { href: '/siirler/', label: 'Şiirler' },
+  { href: '/turku-haritasi/', label: 'Türkü Haritası' },
   { href: '/hakkimizda/', label: 'Hakkımızda' },
   { href: '/yazarlar/', label: 'Yazarlar' },
 ] as const;

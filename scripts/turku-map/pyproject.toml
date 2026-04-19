@@ -1,0 +1,35 @@
+[project]
+name = "repertukul-scraper"
+version = "0.1.0"
+description = "Scraper for Turkish folk-song database at repertukul.com"
+readme = "README.md"
+requires-python = ">=3.11"
+
+dependencies = [
+    # Playwright for JS-heavy pages (Chromium bundled via post-install)
+    "playwright>=1.44.0",
+
+    # BeautifulSoup4 + lxml kept for optional offline HTML parsing helpers
+    "beautifulsoup4>=4.12.3",
+    "lxml>=5.2.2",
+
+    # Requests kept as a lightweight fallback / utility
+    "requests>=2.32.3",
+
+    # Rich for pretty progress bars (optional, but nice for long runs)
+    "rich>=13.7.1",
+]
+
+[project.scripts]
+scrape = "scraper:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv]
+# After `uv sync`, run the Playwright browser install automatically
+# via the post-install hook declared below.
+
+[tool.hatch.build.targets.wheel]
+packages = ["."]

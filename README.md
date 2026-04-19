@@ -100,6 +100,7 @@ is required.
     │   └── poems/<slug>.md         # each poem = one markdown file
     ├── styles/global.css
     ├── layouts/BaseLayout.astro
+    ├── layouts/MapLayout.astro       # full-bleed layout for /turku-haritasi/
     ├── components/
     │   ├── Header.astro
     │   ├── Footer.astro
@@ -118,6 +119,7 @@ is required.
         ├── siirler/[slug].astro             # /siirler/<slug>
         ├── tum-yazilar/index.astro          # /tum-yazilar/ (archive)
         ├── tum-yazilar/[slug].astro         # /tum-yazilar/<slug> (post + series page)
+        ├── turku-haritasi/index.astro       # /turku-haritasi/ (interactive Turkey folk-song map)
         ├── hakkimizda/index.astro
         ├── yazarlar/index.astro
         ├── gizlilik-politikasi/index.astro
@@ -212,6 +214,27 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 
 If you want the page to appear in the navigation, add it to the
 `NAV_LINKS` array in `src/lib/config.ts`.
+
+## Türkü Haritası (interactive map)
+
+`/turku-haritasi/` is an interactive map of Turkey's 81 provinces with
+Turkish folk songs (türküler) for each. It is integrated into the Astro
+site as a single page (`src/pages/turku-haritasi/index.astro`) using a
+dedicated, no-footer, full-bleed `MapLayout` so the map can fill the
+viewport beneath the site header. The map's standalone assets live
+under `public/turku-haritasi/`:
+
+- `public/turku-haritasi/songs.jsonl` — one song per line; the data
+  source for the map. Replace this file to refresh the song database.
+- `public/turku-haritasi/styles.css` — map-specific styles, scoped to
+  `.turku-map-app` so they don't leak into the rest of the site.
+- `public/turku-haritasi/app.js` — map behaviour. Mirrors the site's
+  `data-theme` to the map's `light-mode` class, so the map follows the
+  site-wide dark/light toggle automatically.
+
+Supporting Python tooling that produced `songs.jsonl` (scrapers,
+sanity-check scripts, `pyproject.toml`) lives in `scripts/turku-map/`
+and is not bundled with the site.
 
 ## One-time content migration from WordPress
 
