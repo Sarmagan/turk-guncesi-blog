@@ -74,8 +74,12 @@ const description =
     ? stripHtml(props.series.description, 200)
     : stripHtml(postData!.excerpt || postData!.content, 200);
 
+const hidePostHero =
+  props.kind === 'post' &&
+  postData?.slug === 'bir-cirpida-turkculugun-mimarlari-11-buyuk-oncu';
+
 const heroImage =
-  props.kind === 'post' && postData?.featuredImage
+  props.kind === 'post' && !hidePostHero && postData?.featuredImage
     ? { url: postData.featuredImage, alt: postData.featuredImageAlt || '' }
     : null;
 

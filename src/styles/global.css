@@ -223,6 +223,30 @@ pre {
   border-radius: var(--radius);
 }
 
+.post-body .tg-portrait-figure {
+  width: min(100%, 20rem);
+  aspect-ratio: 3 / 4;
+  margin: 1.75rem auto;
+  overflow: hidden;
+  background: transparent;
+}
+
+.post-body .tg-portrait-figure picture {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.post-body .tg-portrait-figure img {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  object-fit: cover;
+  object-position: center top;
+}
+
 .post-body figcaption {
   font-size: 0.9rem;
   color: var(--text-muted);

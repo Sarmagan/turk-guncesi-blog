@@ -115,6 +115,16 @@ const grid = [
       alt: 'Emir Timur heykeli',
     },
   ],
+  [
+    {
+      href: `${ART}/bir-cirpida-turkculugun-mimarlari-11-buyuk-oncu/`,
+      title: 'Bir Çırpıda Türkçülüğün Mimarları: 11 Büyük Öncü',
+      image:
+        '/media/bir-cirpida-turkculugun-mimarlari-11-buyuk-oncu/01-ismail-gaspirali.jpeg',
+      alt: 'İsmail Gaspıralı portresi',
+      objectPosition: '50% 18%',
+    },
+  ],
 ];
 ---
 
@@ -287,6 +297,11 @@ const grid = [
                   alt={card.alt}
                   loading="lazy"
                   decoding="async"
+                  style={
+                    card.objectPosition
+                      ? `object-position: ${card.objectPosition}`
+                      : undefined
+                  }
                 />
               </span>
               <h3 class="archive-tile__title">{card.title}</h3>

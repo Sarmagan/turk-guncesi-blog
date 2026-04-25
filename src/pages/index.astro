@@ -59,7 +59,11 @@ const featuredExcerpt = featured ? stripHtml(featured.data.excerpt, 220) : '';
           <a class="section__more" href="/tum-yazilar/">Tümünü gör →</a>
         </header>
 
-        <a class="featured-card" href={`/tum-yazilar/${featured.data.slug}`}>
+        <a
+          class="featured-card"
+          href={`/tum-yazilar/${featured.data.slug}`}
+          data-post-slug={featured.data.slug}
+        >
           {featured.data.featuredImage && (
             <div class="featured-card__media">
               <img
@@ -317,6 +321,12 @@ const featuredExcerpt = featured ? stripHtml(featured.data.excerpt, 220) : '';
     height: 100%;
     object-fit: cover;
     display: block;
+  }
+
+  .featured-card[data-post-slug='bir-cirpida-turkculugun-mimarlari-11-buyuk-oncu']
+    .featured-card__media
+    img {
+    object-position: 50% 18%;
   }
 
   .featured-card__body {
